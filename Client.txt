@@ -5,6 +5,7 @@
 #pragma comment(lib, "ws2_32.lib")
 
 #define BUFFER_SIZE 1024
+using namespace std;
 
 int main() {
     WSADATA wsaData;
@@ -15,13 +16,12 @@ int main() {
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(80); // Порт для HTTP
-    inet_pton(AF_INET, "json.org", &serverAddr.sin_addr); // Замените на нужный адрес
+    serverAddr.sin_port = htons(80);
+    inet_pton(AF_INET, "json.org", &serverAddr.sin_addr);
 
     connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr));
 
-    // Отправка GET-запроса
-    std::string request = "GET / HTTP/1.1\r\nHost: json.org\r\nConnection: close\r\n\r\n";
+    string request = "GET / HTTP/1.1\r\nHost: json.org\r\nConnection: close\r\n\r\n";
     send(sock, request.c_str(), request.size(), 0);
 
     char buffer[BUFFER_SIZE];
@@ -30,7 +30,7 @@ int main() {
         if (bytesReceived <= 0) break;
 
         buffer[bytesReceived] = '0';
-        std::cout << buffer; // Выводим ответ сервера
+        cout << buffer;
     }
 
     closesocket(sock);
