@@ -1,0 +1,39 @@
+#include <iostream>
+#include <winsock2.h>
+#include <string>
+#include <Ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+#define BUFFER_SIZE 1024
+
+int main() {
+    WSADATA wsaData;
+    SOCKET sock;
+    sockaddr_in serverAddr;
+
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(80); // Порт для HTTP
+    inet_pton(AF_INET, "json.org", &serverAddr.sin_addr); // Замените на нужный адрес
+
+    connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr));
+
+    // Отправка GET-запроса
+    std::string request = "GET / HTTP/1.1\r\nHost: json.org\r\nConnection: close\r\n\r\n";
+    send(sock, request.c_str(), request.size(), 0);
+
+    char buffer[BUFFER_SIZE];
+    while (true) {
+        int bytesReceived = recv(sock, buffer, BUFFER_SIZE - 1, 0);
+        if (bytesReceived <= 0) break;
+
+        buffer[bytesReceived] = '0';
+        std::cout << buffer; // Выводим ответ сервера
+    }
+
+    closesocket(sock);
+    WSACleanup();
+    return 0;
+}
